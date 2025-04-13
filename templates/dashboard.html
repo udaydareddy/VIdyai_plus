@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - VidyAI++{% endblock %}
+
+{% block extracss %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="welcome-section">
+        <h1><i class="fas fa-hand-wave"></i> Welcome back, {{ user.name if user else 'User' }}!</h1>
+        <div class="streak-info">
+            <div class="streak-icon"><i class="fas fa-fire"></i></div>
+            <div class="streak-details">
+                <div class="streak-count">{{ user.streak if user else '1' }} day streak</div>
+                <div class="streak-progress">{{ user.days_to_badge if user else '6' }} days to Week Warrior badge</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div class="stat-label">Grade</div>
+            <div class="stat-value">{{ user.grade if user else '10' }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-star"></i></div>
+            <div class="stat-label">Points</div>
+            <div class="stat-value">{{ user.points if user else '0' }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-medal"></i></div>
+            <div class="stat-label">Badges</div>
+            <div class="stat-value">{{ user.badges|length if user else '0' }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-certificate"></i></div>
+            <div class="stat-label">Certificates</div>
+            <div class="stat-value">{{ user.certificates|length if user else '0' }}</div>
+        </div>
+    </div>
+
+    <section class="courses-section">
+        <h2><i class="fas fa-book"></i> My Courses</h2>
+        <div class="courses-grid">
+            {% if courses %}
+                {% for course in courses %}
+                <div class="course-card">
+                    <div class="course-icon"><i class="fas fa-book-open"></i></div>
+                    <div class="course-info">
+                        <h3>{{ course.name }}</h3>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: {{ course.progress }}%"></div>
+                        </div>
+                        <div class="progress-text">{{ course.progress }}% Complete</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-courses">
+                    <p><i class="fas fa-lightbulb"></i> No courses started yet</p>
+                    <a href="{{ url_for('learning') }}" class="start-course-btn">
+                        <i class="fas fa-play"></i> Start Learning
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="daily-challenge">
+        <h2><i class="fas fa-trophy"></i> Daily Challenge</h2>
+        <div class="challenge-card">
+            <div class="challenge-icon"><i class="fas fa-bullseye"></i></div>
+            <div class="challenge-content">
+                <h3>Complete a module today</h3>
+                <p>Earn 20 extra points by completing any module before midnight!</p>
+                <a href="{{ url_for('learning') }}" class="challenge-btn">
+                    <i class="fas fa-search"></i> Find a module
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .welcome-section {
+        margin-bottom: 2rem;
+    }
+
+    .welcome-section h1 {
+        font-size: 2rem;
+        color: #1a1a1a;
+        margin: 0 0 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .streak-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .streak-icon {
+        font-size: 2rem;
+        color: #ff6b6b;
+    }
+
+    .streak-count {
+        font-weight: 500;
+        color: #1a1a1a;
+    }
+
+    .streak-progress {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        text-align: center;
+    }
+
+    .stat-icon {
+        font-size: 1.5rem;
+        color: #4361ee;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .courses-section, .daily-challenge {
+        margin-bottom: 2rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+    }
+
+    .course-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .course-icon {
+        font-size: 2rem;
+        color: #4361ee;
+    }
+
+    .course-info {
+        flex: 1;
+    }
+
+    .course-info h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.1rem;
+        color: #1a1a1a;
+    }
+
+    .progress-bar {
+        height: 6px;
+        background: #e9ecef;
+        border-radius: 3px;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress {
+        height: 100%;
+        background: #4361ee;
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+
+    .progress-text {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .empty-courses {
+        text-align: center;
+        padding: 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .start-course-btn, .challenge-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: #4361ee;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: 500;
+        margin-top: 1rem;
+        transition: background-color 0.3s;
+    }
+
+    .start-course-btn:hover, .challenge-btn:hover {
+        background: #3344cc;
+    }
+
+    .challenge-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+    }
+
+    .challenge-icon {
+        font-size: 2.5rem;
+        color: #4361ee;
+    }
+
+    .challenge-content h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.2rem;
+        color: #1a1a1a;
+    }
+
+    .challenge-content p {
+        color: #666;
+        margin: 0 0 1rem 0;
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .courses-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .challenge-card {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .challenge-content {
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extrajs %}
+<script src="{{ url_for('static', filename='js/streak.js') }}"></script>
+{% endblock %}

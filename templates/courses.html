@@ -1,0 +1,12 @@
+<!-- templates/courses.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <h2>Available Courses</h2>
+  <ul>
+    {% for course in courses %}
+      <li><a href="/courses/{{ course.id }}">{{ course.title }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

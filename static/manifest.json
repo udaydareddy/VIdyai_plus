@@ -1,0 +1,88 @@
+{
+    "name": "VidyAI++ Learning Platform",
+    "short_name": "VidyAI++",
+    "description": "Multilingual AI Tutoring & Mentorship Platform for BPL Government School Students",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#4a90e2",
+    "orientation": "portrait-primary",
+    "related_applications": [],
+    "prefer_related_applications": false,
+    "lang": "en",
+    "dir": "ltr",
+    "categories": ["education", "learning", "productivity", "kids"],
+    "shortcuts": [
+      {
+        "name": "Dashboard",
+        "short_name": "Dashboard",
+        "description": "View your learning dashboard",
+        "url": "/dashboard",
+        "icons": [{ "src": "/static/images/shortcut-dashboard.png", "sizes": "96x96" }]
+      },
+      {
+        "name": "Continue Learning",
+        "short_name": "Learning",
+        "description": "Continue your last learning session",
+        "url": "/learning?continue=true",
+        "icons": [{ "src": "/static/images/shortcut-learning.png", "sizes": "96x96" }]
+      },
+      {
+        "name": "Take Quiz",
+        "short_name": "Quiz",
+        "description": "Take a quiz to test your knowledge",
+        "url": "/quiz",
+        "icons": [{ "src": "/static/images/shortcut-quiz.png", "sizes": "96x96" }]
+      }
+    ],
+    "share_target": {
+      "action": "/share-target",
+      "method": "POST",
+      "enctype": "multipart/form-data",
+      "params": {
+        "title": "title",
+        "text": "text",
+        "url": "url",
+        "files": [
+          {
+            "name": "documents",
+            "accept": ["application/pdf", ".pdf", "application/msword", ".doc", ".docx", "text/plain", ".txt"]
+          },
+          {
+            "name": "images",
+            "accept": ["image/*"]
+          }
+        ]
+      }
+    },
+    "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+    "edge_side_panel": {
+      "preferred_width": 480
+    },
+    "file_handlers": [
+      {
+        "action": "/open-file",
+        "accept": {
+          "application/pdf": [".pdf"],
+          "text/plain": [".txt"],
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"]
+        }
+      }
+    ],
+    "protocol_handlers": [
+      {
+        "protocol": "web+vidyai",
+        "url": "/protocol?url=%s"
+      }
+    ],
+    "scope": "/",
+    "start_url": "/?source=pwa",
+    "serviceworker": {
+      "src": "/static/service-worker.js",
+      "scope": "/"
+    },
+    "permissions": ["offline"],
+    "launch_handler": {
+      "client_mode": ["navigate-existing", "auto"]
+    }
+  }

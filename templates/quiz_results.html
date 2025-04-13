@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Results - VidyAI++{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Quiz Results Section -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Quiz Results</h3>
+                </div>
+                <div class="card-body">
+                    <div class="result-summary">
+                        <h4>Score: {{ result.score }}/10</h4>
+                        <p class="mb-2">Subject: {{ result.subject }}</p>
+                        <p class="mb-2">Class: {{ result.class }}</p>
+                        <p class="mb-2">Difficulty: {{ result.difficulty }}</p>
+                        <p class="mb-2">Time Taken: {{ result.time_taken }} seconds</p>
+                        
+                        {% if performance_level == 'advanced' %}
+                            <div class="alert alert-success">
+                                <strong>Excellent!</strong> You've mastered this topic. Check out advanced materials below!
+                            </div>
+                        {% elif performance_level == 'intermediate' %}
+                            <div class="alert alert-info">
+                                <strong>Good progress!</strong> Focus on the recommended practice areas to improve further.
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                <strong>Keep learning!</strong> We've provided resources to help strengthen your foundation.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations Section -->
+        {% if recommendations %}
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Personalized Learning Path</h3>
+                </div>
+                <div class="card-body">
+                    <!-- YouTube Recommendations -->
+                    <div class="mb-4">
+                        <h4 class="text-primary">
+                            <i class="fab fa-youtube"></i> Video Lessons
+                        </h4>
+                        <div class="list-group">
+                            {% for video in recommendations.youtube %}
+                            <div class="list-group-item">
+                                <h5 class="mb-1">{{ video.title }}</h5>
+                                <p class="mb-1"><small class="text-muted">Channel: {{ video.channel }}</small></p>
+                                <p class="mb-2">{{ video.description }}</p>
+                                <a href="https://www.youtube.com/results?search_query={{ video.url|urlencode }}" 
+                                   target="_blank" 
+                                   class="btn btn-sm btn-outline-danger">
+                                    <i class="fab fa-youtube"></i> Watch Video
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- NCERT Chapters -->
+                    <div class="mb-4">
+                        <h4 class="text-primary">
+                            <i class="fas fa-book"></i> NCERT Study Material
+                        </h4>
+                        <div class="list-group">
+                            {% for chapter in recommendations.ncert %}
+                            <div class="list-group-item">
+                                <h5 class="mb-1">{{ chapter.chapter }}</h5>
+                                <p class="mb-1">Pages: {{ chapter.pages }}</p>
+                                <div class="mb-2">
+                                    <strong>Key Topics:</strong>
+                                    <ul class="list-unstyled">
+                                        {% for topic in chapter.topics %}
+                                        <li><i class="fas fa-check-circle text-success"></i> {{ topic }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Practice Areas -->
+                    <div class="mb-4">
+                        <h4 class="text-primary">
+                            <i class="fas fa-tasks"></i> Practice Areas
+                        </h4>
+                        <div class="list-group">
+                            {% for practice in recommendations.practice %}
+                            <div class="list-group-item">
+                                <h5 class="mb-1">{{ practice.topic }}</h5>
+                                <span class="badge bg-{{ 'success' if practice.difficulty == 'advanced' else 'warning' if practice.difficulty == 'intermediate' else 'info' }}">
+                                    {{ practice.difficulty|title }}
+                                </span>
+                                <div class="mt-2">
+                                    <strong>Resources:</strong>
+                                    <ul class="list-unstyled">
+                                        {% for resource in practice.resources %}
+                                        <li><i class="fas fa-arrow-right"></i> {{ resource }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Study Tips -->
+                    <div class="mb-4">
+                        <h4 class="text-primary">
+                            <i class="fas fa-lightbulb"></i> Study Tips
+                        </h4>
+                        <div class="list-group">
+                            {% for tip in recommendations.tips %}
+                            <div class="list-group-item">
+                                <h5 class="mb-1">{{ tip.title }}</h5>
+                                <p class="mb-2">{{ tip.description }}</p>
+                                <div class="action-items">
+                                    <strong>Action Items:</strong>
+                                    <ul class="list-unstyled">
+                                        {% for action in tip.actionItems %}
+                                        <li><i class="fas fa-check text-success"></i> {{ action }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('quiz_setup') }}" class="btn btn-primary me-2">
+                <i class="fas fa-redo"></i> Take Another Quiz
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-home"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    .card-header {
+        border-bottom: none;
+        padding: 1rem 1.5rem;
+    }
+    .list-group-item {
+        border-left: none;
+        border-right: none;
+        border-radius: 0 !important;
+        padding: 1.25rem;
+        transition: all 0.3s ease;
+    }
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+    .list-group-item:first-child {
+        border-top: none;
+    }
+    .list-group-item:last-child {
+        border-bottom: none;
+    }
+    .alert {
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .btn {
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+    }
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .result-summary p {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+    .badge {
+        padding: 0.5em 1em;
+        font-size: 0.85em;
+    }
+    .action-items {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+    }
+    .action-items ul {
+        margin-bottom: 0;
+    }
+    .action-items li {
+        margin-bottom: 0.5rem;
+    }
+    .action-items li:last-child {
+        margin-bottom: 0;
+    }
+</style>
+{% endblock %} 

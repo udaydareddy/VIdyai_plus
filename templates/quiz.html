@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz - VidyAI++{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div id="quiz-container">
+        <div id="quiz-questions" class="d-none">
+            <h2 class="mb-4">Quiz</h2>
+            <div id="question-container"></div>
+            <div class="mt-4">
+                <button id="submit-quiz" class="btn btn-primary">Submit Quiz</button>
+            </div>
+        </div>
+        
+        <div id="quiz-results" class="d-none">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <h2 class="mb-3">Quiz Results</h2>
+                    <div class="score-display mb-3">
+                        <h3 class="mb-2">Your Score: <span id="score-display"></span>/<span id="total-questions"></span></h3>
+                        <p class="mb-2">Performance Level: <span id="performance-level" class="badge"></span></p>
+                        <p class="mb-2">Time Taken: <span id="time-taken"></span> seconds</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="recommendations-container" class="d-none">
+                <h3 class="mb-4">Personalized Learning Path</h3>
+                
+                <!-- YouTube Recommendations -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Video Lessons</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="youtube-recommendations" class="row"></div>
+                    </div>
+                </div>
+                
+                <!-- NCERT Chapters -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">NCERT Study Material</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="ncert-recommendations" class="row"></div>
+                    </div>
+                </div>
+                
+                <!-- Practice Areas -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Practice Areas</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="practice-recommendations" class="row"></div>
+                    </div>
+                </div>
+                
+                <!-- Study Tips -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Study Tips</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="tips-recommendations" class="row"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button id="retake-quiz" class="btn btn-primary me-2">Retake Quiz</button>
+                <a href="{{ url_for('learning') }}" class="btn btn-secondary">Back to Learning</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.score-display {
+    font-size: 1.2rem;
+}
+
+.badge {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+}
+
+.badge.beginner {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.badge.intermediate {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+.badge.advanced {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+}
+
+.recommendation-card {
+    margin-bottom: 1rem;
+}
+
+.recommendation-card .card-body {
+    padding: 1rem;
+}
+
+.practice-difficulty {
+    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.practice-difficulty.beginner {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+.practice-difficulty.intermediate {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.practice-difficulty.advanced {
+    background-color: #d4edda;
+    color: #155724;
+}
+</style>
+
+<script>
+let currentQuestion = 0;
+let answers = [];
+let startTime;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const questions = {{ questions|tojson|safe }};
+    const questionContainer = document.getElementById('question-container');
+    const quizQuestions = document.getElementById('quiz-questions');
+    const quizResults = document.getElementById('quiz-results');
+    const submitButton = document.getElementById('submit-quiz');
+    const retakeButton = document.getElementById('retake-quiz');
+    
+    // Initialize quiz
+    function initializeQuiz() {
+        currentQuestion = 0;
+        answers = [];
+        startTime = Date.now();
+        displayQuestion();
+        quizQuestions.classList.remove('d-none');
+        quizResults.classList.add('d-none');
+    }
+    
+    // Display current question
+    function displayQuestion() {
+        const question = questions[currentQuestion];
+        let html = `
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="card-title">Question ${currentQuestion + 1}</h4>
+                    <p class="card-text">${question.question}</p>
+                    <div class="options">
+        `;
+        
+        question.options.forEach((option, index) => {
+            const isChecked = answers[currentQuestion] === index ? 'checked' : '';
+            html += `
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="question${currentQuestion}" 
+                           id="option${index}" value="${index}" ${isChecked}>
+                    <label class="form-check-label" for="option${index}">
+                        ${option}
+                    </label>
+                </div>
+            `;
+        });
+        
+        html += `
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        questionContainer.innerHTML = html;
+    }
+    
+    // Handle option selection
+    questionContainer.addEventListener('change', function(e) {
+        if (e.target.type === 'radio') {
+            answers[currentQuestion] = parseInt(e.target.value);
+        }
+    });
+    
+    // Submit quiz
+    submitButton.addEventListener('click', async function() {
+        const timeTaken = Math.floor((Date.now() - startTime) / 1000);
+        
+        try {
+            const response = await fetch('/submit_quiz', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    answers: answers,
+                    time_taken: timeTaken
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            // Display results
+            document.getElementById('score-display').textContent = data.score;
+            document.getElementById('total-questions').textContent = data.total_questions;
+            document.getElementById('time-taken').textContent = timeTaken;
+            
+            const performanceLevel = document.getElementById('performance-level');
+            performanceLevel.textContent = data.performance_level;
+            performanceLevel.className = 'badge ' + data.performance_level;
+            
+            // Display recommendations if available
+            if (data.recommendations) {
+                displayRecommendations(data.recommendations);
+            }
+            
+            quizQuestions.classList.add('d-none');
+            quizResults.classList.remove('d-none');
+            
+        } catch (error) {
+            console.error('Error submitting quiz:', error);
+            alert('Failed to submit quiz. Please try again.');
+        }
+    });
+    
+    // Display recommendations
+    function displayRecommendations(recommendations) {
+        const container = document.getElementById('recommendations-container');
+        container.classList.remove('d-none');
+        
+        // YouTube recommendations
+        const youtubeContainer = document.getElementById('youtube-recommendations');
+        youtubeContainer.innerHTML = recommendations.youtube.map(video => `
+            <div class="col-md-6 mb-3">
+                <div class="card recommendation-card">
+                    <div class="card-body">
+                        <h5 class="card-title">${video.title}</h5>
+                        <p class="card-text text-muted">${video.channel}</p>
+                        <p class="card-text">${video.description}</p>
+                        <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(video.url)}" 
+                           class="btn btn-sm btn-primary" target="_blank">Watch Video</a>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        // NCERT recommendations
+        const ncertContainer = document.getElementById('ncert-recommendations');
+        ncertContainer.innerHTML = recommendations.ncert.map(chapter => `
+            <div class="col-md-6 mb-3">
+                <div class="card recommendation-card">
+                    <div class="card-body">
+                        <h5 class="card-title">${chapter.chapter}</h5>
+                        <p class="card-text text-muted">Pages: ${chapter.pages}</p>
+                        <ul class="list-unstyled">
+                            ${chapter.topics.map(topic => `<li>• ${topic}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        // Practice recommendations
+        const practiceContainer = document.getElementById('practice-recommendations');
+        practiceContainer.innerHTML = recommendations.practice.map(area => `
+            <div class="col-md-6 mb-3">
+                <div class="card recommendation-card">
+                    <div class="card-body">
+                        <h5 class="card-title">${area.topic}</h5>
+                        <span class="practice-difficulty ${area.difficulty}">${area.difficulty}</span>
+                        <ul class="list-unstyled mt-2">
+                            ${area.resources.map(resource => `<li>• ${resource}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        // Study tips
+        const tipsContainer = document.getElementById('tips-recommendations');
+        tipsContainer.innerHTML = recommendations.tips.map(tip => `
+            <div class="col-md-6 mb-3">
+                <div class="card recommendation-card">
+                    <div class="card-body">
+                        <h5 class="card-title">${tip.title}</h5>
+                        <p class="card-text">${tip.description}</p>
+                        <ul class="list-unstyled">
+                            ${tip.actionItems.map(item => `<li>• ${item}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // Retake quiz
+    retakeButton.addEventListener('click', initializeQuiz);
+    
+    // Start quiz
+    initializeQuiz();
+});
+</script>
+{% endblock %} 

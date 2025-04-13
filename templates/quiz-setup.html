@@ -1,0 +1,434 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Setup - VidyAI++{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Quiz Setup Form -->
+    <div id="quizForm">
+        <h2 class="mb-4">Quiz Setup</h2>
+        <form onsubmit="event.preventDefault(); generateQuestions();">
+            <div class="mb-3">
+                <label for="class" class="form-label">Class</label>
+                <select class="form-select" id="class" required>
+                    <option value="">Select Class</option>
+                    <option value="6">Class 6</option>
+                    <option value="7">Class 7</option>
+                    <option value="8">Class 8</option>
+                    <option value="9">Class 9</option>
+                    <option value="10">Class 10</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="subject" class="form-label">Subject</label>
+                <select class="form-select" id="subject" required>
+                    <option value="">Select Subject</option>
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="Science">Science</option>
+                    <option value="Social Studies">Social Studies</option>
+                    <option value="English">English</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="difficulty" class="form-label">Difficulty Level</label>
+                <select class="form-select" id="difficulty" required>
+                    <option value="">Select Difficulty</option>
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Start Quiz</button>
+        </form>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="text-center" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Generating questions...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
+
+    <!-- Quiz Content -->
+    <div id="quizContent" style="display: none;">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span id="questionNumber"></span>
+                <span id="timer" class="text-muted">Time: 00:00</span>
+            </div>
+            <div class="card-body">
+                <h5 id="questionText" class="card-title mb-4"></h5>
+                <div id="options" class="d-grid gap-2"></div>
+                <div class="explanation-box mt-3" style="display: none;">
+                    <h6 class="text-primary">Explanation:</h6>
+                    <p id="explanation-text" class="mb-0"></p>
+                </div>
+                <div class="question-recommendations mt-3" style="display: none;">
+                    <h6 class="text-success">Quick Tips:</h6>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-video text-primary"></i> Related Video</h6>
+                                    <div id="question-video" class="mb-3"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-book text-success"></i> Study Material</h6>
+                                    <div id="question-material" class="mb-3"></div>
+                                </div>
+                            </div>
+                            <div class="practice-tip mt-2">
+                                <h6><i class="fas fa-lightbulb text-warning"></i> Practice Tip</h6>
+                                <div id="question-tip"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button id="prevButton" class="btn btn-secondary" onclick="showQuestion(currentQuestionIndex - 1)" disabled>Previous</button>
+                <button id="nextButton" class="btn btn-primary" onclick="showQuestion(currentQuestionIndex + 1)">Next</button>
+                <button id="submitButton" class="btn btn-success" onclick="submitQuiz()" style="display: none;">Submit Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results-section" style="display: none;">
+        <div class="row">
+            <!-- Quiz Results -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">Quiz Results</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="result-summary">
+                            <h4 id="score-display" class="mb-3"></h4>
+                            <p class="mb-2" id="subject-display"></p>
+                            <p class="mb-2" id="class-display"></p>
+                            <p class="mb-2" id="difficulty-display"></p>
+                            <p class="mb-2" id="time-taken-display"></p>
+                            <div id="performance-message" class="alert mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h3 class="mb-0">Personalized Learning Path</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Video Lessons -->
+                        <div class="mb-4">
+                            <h4 class="text-primary">
+                                <i class="fab fa-youtube"></i> Video Lessons
+                            </h4>
+                            <div id="youtube-recommendations" class="list-group"></div>
+                        </div>
+
+                        <!-- NCERT Study Material -->
+                        <div class="mb-4">
+                            <h4 class="text-primary">
+                                <i class="fas fa-book"></i> NCERT Study Material
+                            </h4>
+                            <div id="ncert-recommendations" class="list-group"></div>
+                        </div>
+
+                        <!-- Practice Areas -->
+                        <div class="mb-4">
+                            <h4 class="text-primary">
+                                <i class="fas fa-tasks"></i> Practice Areas
+                            </h4>
+                            <div id="practice-recommendations" class="list-group"></div>
+                        </div>
+
+                        <!-- Study Tips -->
+                        <div class="mb-4">
+                            <h4 class="text-primary">
+                                <i class="fas fa-lightbulb"></i> Study Tips
+                            </h4>
+                            <div id="tips-recommendations" class="list-group"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <button onclick="window.location.reload()" class="btn btn-primary me-2">
+                    <i class="fas fa-redo"></i> Take Another Quiz
+                </button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    .card-header {
+        border-bottom: none;
+        padding: 1rem 1.5rem;
+    }
+    .option-btn {
+        width: 100%;
+        text-align: left;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border: 2px solid #dee2e6;
+        border-radius: 10px;
+        background-color: white;
+        transition: all 0.3s ease;
+    }
+    .option-btn:hover {
+        border-color: #4361ee;
+        background-color: rgba(67, 97, 238, 0.05);
+    }
+    .option-btn.selected {
+        border-color: #4361ee;
+        background-color: rgba(67, 97, 238, 0.1);
+    }
+    .option-btn.correct {
+        border-color: #28a745;
+        background-color: rgba(40, 167, 69, 0.1);
+    }
+    .option-btn.incorrect {
+        border-color: #dc3545;
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+    .explanation-box {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+    }
+    .list-group-item {
+        border-left: none;
+        border-right: none;
+        padding: 1.25rem;
+    }
+    .progress-bar {
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #4361ee, #3f37c9);
+        transition: width 0.3s ease;
+    }
+</style>
+
+<script>
+let questions = [];
+let userAnswers = [];
+let currentQuestionIndex = 0;
+let startTime = null;
+let timerInterval = null;
+
+function generateQuestions() {
+    // Reset quiz state
+    questions = [];
+    userAnswers = [];
+    currentQuestionIndex = 0;
+    
+    // Get form values
+    const classValue = document.getElementById('class').value;
+    const subject = document.getElementById('subject').value;
+    const difficulty = document.getElementById('difficulty').value;
+
+    // Validate form
+    if (!classValue || !subject || !difficulty) {
+        document.getElementById('errorMessage').textContent = 'Please fill in all fields';
+        document.getElementById('errorMessage').style.display = 'block';
+        return;
+    }
+
+    // Show loading spinner and hide other elements
+    document.getElementById('quizForm').style.display = 'none';
+    document.getElementById('loadingSpinner').style.display = 'block';
+    document.getElementById('errorMessage').style.display = 'none';
+    document.getElementById('quizContent').style.display = 'none';
+
+    // Make API request
+    fetch('/generate_questions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            class: classValue,
+            subject: subject,
+            difficulty: difficulty,
+            num_questions: 5  // Request only 5 questions
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to generate questions');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (!data.questions || data.questions.length === 0) {
+            throw new Error('No questions were generated');
+        }
+        
+        // Store questions and initialize answers
+        questions = data.questions;
+        userAnswers = new Array(questions.length).fill(null);
+        
+        // Hide loading spinner and show quiz
+        document.getElementById('loadingSpinner').style.display = 'none';
+        document.getElementById('quizContent').style.display = 'block';
+        
+        // Start quiz
+        startQuiz();
+    })
+    .catch(error => {
+        // Show error message with retry button
+        document.getElementById('loadingSpinner').style.display = 'none';
+        document.getElementById('quizForm').style.display = 'block';
+        document.getElementById('errorMessage').innerHTML = `
+            ${error.message}. 
+            <button class="btn btn-link p-0" onclick="generateQuestions()">Try again</button>
+        `;
+        document.getElementById('errorMessage').style.display = 'block';
+    });
+}
+
+function startQuiz() {
+    startTime = new Date();
+    timerInterval = setInterval(updateTimer, 1000);
+    showQuestion(0);
+}
+
+function showQuestion(index) {
+    if (index < 0 || index >= questions.length) return;
+    
+    currentQuestionIndex = index;
+    const question = questions[index];
+    
+    // Update question number
+    document.getElementById('questionNumber').textContent = `Question ${index + 1} of ${questions.length}`;
+    
+    // Update question text
+    document.getElementById('questionText').textContent = question.question;
+    
+    // Create options
+    const optionsContainer = document.getElementById('options');
+    optionsContainer.innerHTML = '';
+    question.options.forEach((option, optionIndex) => {
+        const button = document.createElement('button');
+        button.className = `option-btn ${userAnswers[index] === optionIndex ? 'selected' : ''}`;
+        button.textContent = option;
+        button.onclick = () => selectAnswer(optionIndex);
+        optionsContainer.appendChild(button);
+    });
+
+    // Show/hide explanation
+    const explanationBox = document.querySelector('.explanation-box');
+    if (userAnswers[index] !== null) {
+        // Show explanation
+        document.getElementById('explanation-text').textContent = question.explanation;
+        explanationBox.style.display = 'block';
+    } else {
+        explanationBox.style.display = 'none';
+    }
+
+    // Update navigation buttons
+    document.getElementById('prevButton').disabled = index === 0;
+    document.getElementById('nextButton').style.display = index === questions.length - 1 ? 'none' : 'block';
+    document.getElementById('submitButton').style.display = index === questions.length - 1 ? 'block' : 'none';
+}
+
+function selectAnswer(optionIndex) {
+    userAnswers[currentQuestionIndex] = optionIndex;
+    showQuestion(currentQuestionIndex);
+}
+
+function updateTimer() {
+    if (!startTime) return;
+    
+    const now = new Date();
+    const timeDiff = Math.floor((now - startTime) / 1000);
+    const minutes = Math.floor(timeDiff / 60);
+    const seconds = timeDiff % 60;
+    
+    document.getElementById('timer').textContent = 
+        `Time: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function submitQuiz() {
+    // Check if all questions are answered
+    if (userAnswers.includes(null)) {
+        if (!confirm('You have unanswered questions. Do you want to submit anyway?')) {
+            return;
+        }
+    }
+
+    clearInterval(timerInterval);
+    const timeTaken = Math.floor((new Date() - startTime) / 1000);
+
+    fetch('/submit_quiz', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            answers: userAnswers,
+            time_taken: timeTaken,
+            subject: document.getElementById('subject').value,
+            class: document.getElementById('class').value,
+            difficulty: document.getElementById('difficulty').value
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Hide quiz content and show results
+        document.getElementById('quizContent').style.display = 'none';
+        document.getElementById('results-section').style.display = 'block';
+
+        // Update score and quiz info
+        document.getElementById('score-display').textContent = `Score: ${data.score}%`;
+        document.getElementById('subject-display').textContent = `Subject: ${data.quiz_data.subject}`;
+        document.getElementById('class-display').textContent = `Class: ${data.quiz_data.class}`;
+        document.getElementById('difficulty-display').textContent = `Difficulty: ${data.quiz_data.difficulty}`;
+        document.getElementById('time-taken-display').textContent = 
+            `Time Taken: ${Math.floor(data.quiz_data.time_taken / 60)}:${(data.quiz_data.time_taken % 60).toString().padStart(2, '0')}`;
+
+        // Set performance message
+        const performanceMsg = document.getElementById('performance-message');
+        if (data.performance_level === 'advanced') {
+            performanceMsg.className = 'alert alert-success';
+            performanceMsg.innerHTML = '<strong>Excellent!</strong> You\'ve mastered this topic!';
+        } else if (data.performance_level === 'intermediate') {
+            performanceMsg.className = 'alert alert-info';
+            performanceMsg.innerHTML = '<strong>Good progress!</strong> Keep practicing to improve further.';
+        } else {
+            performanceMsg.className = 'alert alert-warning';
+            performanceMsg.innerHTML = '<strong>Keep learning!</strong> Focus on the recommended topics.';
+        }
+    })
+    .catch(error => {
+        alert('Failed to submit quiz. Please try again.');
+    });
+}
+</script>
+{% endblock %}

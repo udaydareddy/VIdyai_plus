@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Skills Overview -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Skills Overview</h3>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for skill in skills %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-1">{{ skill.name }}</h6>
+                                <span class="badge {% if skill.proficiency >= 0.7 %}bg-success{% elif skill.proficiency >= 0.4 %}bg-warning{% else %}bg-danger{% endif %}">
+                                    {{ (skill.proficiency * 100)|round|int }}%
+                                </span>
+                            </div>
+                            <small class="text-muted">{{ skill.category }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Path -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Your Learning Path</h3>
+                </div>
+                <div class="card-body">
+                    {% if learning_path %}
+                        {% for path in learning_path %}
+                        <div class="mb-4">
+                            <h4>{{ path.category }}: {{ path.skill }}</h4>
+                            <div class="progress mb-2">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {{ (path.proficiency * 100)|round|int }}%"
+                                     aria-valuenow="{{ (path.proficiency * 100)|round|int }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    {{ (path.proficiency * 100)|round|int }}%
+                                </div>
+                            </div>
+                            
+                            <div class="list-group">
+                                {% for module in path.modules %}
+                                <a href="/module/{{ module.id }}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-1">{{ module.title }}</h6>
+                                        <span class="badge bg-primary">{{ module.course_title }}</span>
+                                    </div>
+                                    <p class="mb-1">{{ module.description }}</p>
+                                    <small class="text-muted">{{ module.points }} points</small>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-success">
+                            <h4>Great job!</h4>
+                            <p>You've mastered all the skills in your current learning path. Keep up the good work!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Quiz Performance -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3>Recent Quiz Performance</h3>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for quiz in quiz_performance %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-1">{{ quiz.title }}</h6>
+                                <span class="badge {% if quiz.score >= 70 %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ quiz.score }}%
+                                </span>
+                            </div>
+                            <small class="text-muted">Completed on {{ quiz.completed_at }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

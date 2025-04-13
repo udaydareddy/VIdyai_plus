@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+
+{% block title %}Learning - VidyAI++{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<style>
+    .learning-container {
+        display: flex;
+        min-height: calc(100vh - 60px);
+    }
+    
+    .subjects-sidebar {
+        width: 250px;
+        background: white;
+        padding: 1rem;
+        border-right: 1px solid #e9ecef;
+    }
+    
+    .subject-btn {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
+        border: none;
+        border-radius: 8px;
+        background: #f8f9fa;
+        color: #1a1a1a;
+        text-align: left;
+        transition: all 0.3s;
+    }
+    
+    .subject-btn:hover,
+    .subject-btn.active {
+        background: #4361ee;
+        color: white;
+    }
+    
+    .main-content {
+        flex: 1;
+        padding: 2rem;
+        background: #f8f9fa;
+    }
+    
+    .controls-bar {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        background: white;
+        padding: 1rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .search-bar {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+    }
+    
+    .search-input {
+        flex: 1;
+        border: none;
+        background: none;
+        font-size: 1rem;
+        color: #1a1a1a;
+    }
+    
+    .search-input:focus {
+        outline: none;
+    }
+    
+    .control-btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        background: #f8f9fa;
+        color: #1a1a1a;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .control-btn:hover {
+        background: #4361ee;
+        color: white;
+    }
+    
+    .content-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .content-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+    }
+    
+    .content-text {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #4a4a4a;
+    }
+    
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #4361ee;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .error-message {
+        display: none;
+        color: #dc3545;
+        background: #ffe3e5;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+        text-align: center;
+    }
+</style>
+
+<div class="learning-container">
+    <div class="subjects-sidebar">
+        <h2 class="mb-4">Subjects</h2>
+        <button class="subject-btn active" data-subject="Mathematics">
+            <i class="fas fa-square-root-alt me-2"></i>Mathematics
+        </button>
+        <button class="subject-btn" data-subject="Science">
+            <i class="fas fa-flask me-2"></i>Science
+        </button>
+        <button class="subject-btn" data-subject="English">
+            <i class="fas fa-book me-2"></i>English
+        </button>
+        <button class="subject-btn" data-subject="History">
+            <i class="fas fa-landmark me-2"></i>History
+              </button>
+        <button class="subject-btn" data-subject="Geography">
+            <i class="fas fa-globe-americas me-2"></i>Geography
+              </button>
+            </div>
+    
+    <div class="main-content">
+        <div class="controls-bar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search topics...">
+                <button class="control-btn" id="voiceSearchBtn">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </div>
+
+            <button class="control-btn" id="translateBtn">
+                <i class="fas fa-language"></i>
+                Translate
+            </button>
+            
+            <button class="control-btn" id="ttsBtn">
+                <i class="fas fa-volume-up"></i>
+                Read Aloud
+            </button>
+            
+            <button class="control-btn" id="downloadBtn">
+                <i class="fas fa-download"></i>
+                Download
+            </button>
+        </div>
+        
+        <div class="content-card">
+            <div id="contentArea">
+                <h2 class="content-title">Welcome to Learning</h2>
+                <p class="content-text">Select a subject and search for topics to begin learning.</p>
+            </div>
+
+            <div class="loading-spinner" id="loadingSpinner">
+              <div class="spinner"></div>
+                <p>Generating content...</p>
+          </div>
+          
+            <div class="error-message" id="errorMessage"></div>
+      </div>
+    </div>
+  </div>
+ 
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const voiceSearchBtn = document.getElementById('voiceSearchBtn');
+    const translateBtn = document.getElementById('translateBtn');
+    const ttsBtn = document.getElementById('ttsBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const contentArea = document.getElementById('contentArea');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const errorMessage = document.getElementById('errorMessage');
+    const subjectBtns = document.querySelectorAll('.subject-btn');
+    
+    let currentSubject = 'Mathematics';
+    let currentContent = '';
+    
+    // Subject selection
+    subjectBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            subjectBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentSubject = this.dataset.subject;
+            searchInput.value = '';
+            generateContent('');
+        });
+    });
+    
+    // Search functionality
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            generateContent(this.value);
+        }
+    });
+    
+    // Voice search
+    voiceSearchBtn.addEventListener('click', function() {
+        if ('webkitSpeechRecognition' in window) {
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'en-US';
+            
+            recognition.onresult = function(event) {
+      const transcript = event.results[0][0].transcript;
+      searchInput.value = transcript;
+                generateContent(transcript);
+            };
+            
+            recognition.start();
+        } else {
+            alert('Voice recognition is not supported in your browser.');
+        }
+    });
+    
+    // Generate content
+    async function generateContent(topic) {
+        try {
+            loadingSpinner.style.display = 'block';
+            errorMessage.style.display = 'none';
+            contentArea.style.opacity = '0.5';
+            
+            const response = await fetch('/generate_content', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    subject: currentSubject,
+                    topic: topic || 'introduction'
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                currentContent = data.content;
+                contentArea.innerHTML = `
+                    <h2 class="content-title">${data.title}</h2>
+                    <div class="content-text">${data.content}</div>
+                    ${data.examples.length ? `
+                        <h3 class="mt-4 mb-3">Examples:</h3>
+                        <ul>
+                            ${data.examples.map(ex => `<li>${ex}</li>`).join('')}
+                        </ul>
+                    ` : ''}
+                    ${data.summary ? `
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <h4>Summary:</h4>
+                            <p>${data.summary}</p>
+                        </div>
+                    ` : ''}
+                `;
+    } else {
+                throw new Error(data.error || 'Failed to generate content');
+            }
+        } catch (error) {
+            errorMessage.textContent = error.message;
+            errorMessage.style.display = 'block';
+        } finally {
+            loadingSpinner.style.display = 'none';
+            contentArea.style.opacity = '1';
+        }
+    }
+    
+    // Translation
+    translateBtn.addEventListener('click', async function() {
+        try {
+            const language = prompt('Enter target language (e.g., hindi, spanish):');
+            if (!language) return;
+            
+            loadingSpinner.style.display = 'block';
+            
+            const response = await fetch('/api/translate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: currentContent,
+                    language: language
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.translated) {
+                contentArea.querySelector('.content-text').textContent = data.translated;
+            } else {
+                throw new Error(data.error || 'Translation failed');
+            }
+        } catch (error) {
+            errorMessage.textContent = error.message;
+            errorMessage.style.display = 'block';
+        } finally {
+            loadingSpinner.style.display = 'none';
+        }
+    });
+    
+    // Text-to-Speech
+    let isReading = false;
+    let utterance = null;
+    
+    ttsBtn.addEventListener('click', async function() {
+        if (isReading) {
+            window.speechSynthesis.cancel();
+            isReading = false;
+            ttsBtn.innerHTML = '<i class="fas fa-volume-up"></i> Read Aloud';
+            return;
+        }
+        
+        try {
+            const text = contentArea.querySelector('.content-text').textContent;
+            
+            const response = await fetch('/api/tts', {
+                method: 'POST',
+        headers: {
+                    'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+                    text: text,
+                    language: 'english'
+        })
+      });
+
+      const data = await response.json();
+            
+            if (response.ok && data.audio_url) {
+                const audio = new Audio(data.audio_url);
+                audio.play();
+                isReading = true;
+                ttsBtn.innerHTML = '<i class="fas fa-stop"></i> Stop Reading';
+                
+                audio.onended = function() {
+                    isReading = false;
+                    ttsBtn.innerHTML = '<i class="fas fa-volume-up"></i> Read Aloud';
+                };
+            } else {
+                throw new Error(data.error || 'Text-to-speech failed');
+            }
+    } catch (error) {
+            errorMessage.textContent = error.message;
+            errorMessage.style.display = 'block';
+        }
+    });
+    
+    // Download content
+    downloadBtn.addEventListener('click', function() {
+        const content = contentArea.innerText;
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${currentSubject}-notes.txt`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    });
+    
+    // Initial content generation
+    generateContent('');
+  });
+</script>
+{% endblock %}
