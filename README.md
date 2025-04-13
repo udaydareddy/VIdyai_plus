@@ -49,19 +49,27 @@
 ## Project Explanation 📋
 
 VidyAI++ is a comprehensive educational platform designed to bridge the educational gap for Below Poverty Line (BPL) students attending government schools in India. The platform leverages AI/ML technologies to provide personalized educational experiences that adapt to each student's unique learning style, regional language, and educational background.
-
+## Register 
+![Register](Images/capture_20250413055543889.bmp)
+![Login](Images/capture_20250413055621307.bmp)
 ### Implemented Features
 
 #### 1. Multilingual Generative AI Tutoring 🗣️
 Our platform integrates with advanced language models to provide tutoring content in various Indian languages. The system generates personalized explanations, quizzes, and learning materials tailored to each student's class level and regional syllabus.
 
-![Adaptive Learning Dashboard](https://placeholder-image-url.com/adaptive-learning.jpg)
+![Multilingual Generative AI Tutoring](Images/capture_20250413055907307.bmp)
+![Multilingual Generative AI Tutoring1](Images/capture_20250413055925819.bmp)
+![Multilingual Generative AI Tutoring2](Images/capture_20250413055959162.bmp)
+![Multilingual Generative AI Tutoring3](Images/capture_20250413060018900.bmp)
+
+
 
 
 #### 2. Real-Time Adaptive Content Delivery 📈
 VidyAI++ continuously analyzes student performance and adjusts content difficulty accordingly. Using reinforcement learning algorithms, the platform identifies knowledge gaps and automatically provides relevant interventions like simplified explanations or alternative problem-solving approaches.
 
-
+![Real-Time Adaptive Content Delivery](Images/capture_20250413055654205.bmp)
+![Real-Time Adaptive Content Delivery1](Images/capture_20250413055714647.bmp)
 
 #### 3. AI Mentor Matchmaking System 🤝
 Our intelligent matchmaking algorithm pairs students with appropriate mentors based on subject needs, emotional compatibility, availability, and regional considerations. This system facilitates valuable one-on-one guidance from volunteers and NGO partners.
