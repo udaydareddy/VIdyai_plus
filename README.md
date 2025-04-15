@@ -74,27 +74,31 @@ VidyAI++ continuously analyzes student performance and adjusts content difficult
 #### 3. AI Mentor Matchmaking System 🤝
 Our intelligent matchmaking algorithm pairs students with appropriate mentors based on subject needs, emotional compatibility, availability, and regional considerations. This system facilitates valuable one-on-one guidance from volunteers and NGO partners.
 
-![Mentor Matching Interface](https://placeholder-image-url.com/mentor-matching.jpg)
+![Mentor Matching Interface](Images/capture_20250413060057973.bmp)
+![Mentor Matching Interface1](Images/capture_20250413060115954.bmp)
+
 
 #### 4. Persona Intelligence Engine 🧩
 VidyAI++ classifies students into different learning style categories (visual, auditory, or kinesthetic) through continuous interaction analysis. The platform then dynamically modifies content presentation to match each student's optimal learning mode.
 
-![Learning Style Analysis](https://placeholder-image-url.com/learning-style.jpg)
+![Learning Style Analysis](Images/capture_20250413060202282.bmp)
+![Learning Style Analysis1](Images/capture_20250413060410089.bmp)
+
 
 #### 5. Gamified Learning Experience 🎮
 The platform incorporates game mechanics like skill heatmaps, digital badges, and achievement systems to boost engagement and motivation. Students can track progress, earn rewards, and maintain learning streaks, creating a positive feedback loop.
 
-![Gamification Elements](https://placeholder-image-url.com/gamification.jpg)
+![Gamification Elements](Images/capture_20250413060432174.bmp)
 
 #### 6. Offline-First Architecture 📶
 VidyAI++ is built as a Progressive Web App with offline capabilities, enabling students to download content during connectivity and access it later without internet. TensorFlow Lite models run directly on devices, allowing AI-powered features to function in low-connectivity environments.
 
-![Offline Mode Functionality](https://placeholder-image-url.com/offline-mode.jpg)
+![Offline Mode Functionality](Images/capture_20250413060547808.bmp)
 
 #### 7. Zero Literacy Barrier Interface 🔊
 Our platform features voice-based navigation, large visual cues, and automatic translation/transcription services to ensure accessibility for students and parents with limited reading abilities. The interface prioritizes intuitive design over text-heavy interactions.
 
-![Voice Navigation System](https://placeholder-image-url.com/voice-navigation.jpg)
+![Voice Navigation System](Images/capture_20250413055925819.bmp)
 
 ### Feature Under Development
 - **Vision-Based Learning Level Estimation** 👁️: This feature will use webcam-based emotion detection, eye tracking, and fatigue analysis to adaptively adjust teaching pace and detect student engagement levels. Development is in progress with testing planned for the next release.
